@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<link rel="stylesheet" href="style.css">
+	<meta charset="utf-8">
+	<title>ChatRoom</title>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.6/css/bootstrap.css">
+	</script>
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+	<script type ="text/javascript" src="/socket.io/socket.io.js"></script>
+	<script type="text/javascript">
+		$(document).ready(function(){
+			var name = prompt('What is your name?')
+			var socket = io.connect();
+			socket.emit('user_join', {name: name});
+			$('#textinput').bind('keypress', function(e){
+				 if (e.which === 13) {
+					 ("#textinput").submit;
+				 }
+			});
+			socket.on('to_joined_user', function(data){
+				console.log("data returned: "+data.allmessages[0].message);
+				$('#messages').append('<h2>Welcome, '+data.users.name+'!</h2>')
+				for (var i = 0; i < data.allmessages.length; i++){
+					$('#messages').append('<li>'+data.allmessages[i].name+': '+data.allmessages[i].message+'!</li>')
+				}
+			})
+			socket.on('to_other_users', function(data){
+				console.log(data.joiner.value)
+				$('#messages').append('<li>'+data.joiner+' has entered the arena!</li>')
+			})
+			$('#textinput').submit(function(event){
+				event.preventDefault();
+				var message = {
+					mtext: this.input.value,
+					name: name,
+				}
+				this.reset();
+				socket.emit('sending_message', {message:message})
+				return false;
+			})
+			socket.on('update_messages', function(data){
+				$('#messages').append('<li>'+data.message.name+': '+data.message.message+'</li>')
+			})
+			socket.on('disconnect', function(data){
+				console.log(data.disco_message)
+				$('#messages').append('<li>'+data.disco_message+'</li>')
+			})
+		})
+	</script>
+</head>
+	<body>
+		<ul id="messages"></ul>
+		<form id="textinput" action="">
+			<input id="input" autocomplete="off"/>
+			<button>Send</button>
+		</form>
+	</body>
+</html>
