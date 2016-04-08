@@ -45,6 +45,6 @@ io.sockets.on('connection', function(socket){
 		socket.emit('allmessages', {allmessages: all_messages});
 	})
 	socket.on('disconnect', function(){
-		io.emit('disconnect', {disco_message:'user '+users.name+' disconnected'})
+		io.emit('disconnect', {disco_message: users.name})
 	})
 })

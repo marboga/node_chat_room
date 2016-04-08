@@ -19,7 +19,7 @@
 				 }
 			});
 			socket.on('to_joined_user', function(data){
-				console.log("data returned: "+data.allmessages[0].message);
+				
 				$('#messages').append('<h2>Welcome, '+data.users.name+'!</h2>')
 				for (var i = 0; i < data.allmessages.length; i++){
 					$('#messages').append('<li>'+data.allmessages[i].name+': '+data.allmessages[i].message+'!</li>')
@@ -44,7 +44,7 @@
 			})
 			socket.on('disconnect', function(data){
 				console.log(data.disco_message)
-				$('#messages').append('<li>'+data.disco_message+'</li>')
+				$('#messages').append('<li> User '+data.disco_message+' disconnected.</li>')
 			})
 		})
 	</script>
