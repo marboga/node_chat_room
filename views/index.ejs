@@ -3,57 +3,72 @@
 <head>
 	<link rel="stylesheet" href="style.css">
 	<meta charset="utf-8">
-	<title>ChatRoom</title>
+	<title>Michael's ChatRoom</title>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.6/css/bootstrap.css">
 	</script>
 	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 	<script type ="text/javascript" src="/socket.io/socket.io.js"></script>
 	<script type="text/javascript">
 		$(document).ready(function(){
-			var name = prompt('What is your name?')
+			//when user joins, ask for their name
+			var name = prompt('What is your name?');
+			//if they don't provide one, reprompt
+			while (name.length < 2) {
+				if (!name){}
+				var name = prompt('You must enter a name.');
+			}
+			if (name.length > 1) {
+				$('#container').css('visibility', 'visible');
+			}
+			//then connect, passing their name to the server
 			var socket = io.connect();
 			socket.emit('user_join', {name: name});
-			$('#textinput').bind('keypress', function(e){
-				 if (e.which === 13) {
-					 ("#textinput").submit;
-				 }
-			});
+			//when server pings back to user who has just joined, load and display all messages posted to date
 			socket.on('to_joined_user', function(data){
-				
 				$('#messages').append('<h2>Welcome, '+data.users.name+'!</h2>')
 				for (var i = 0; i < data.allmessages.length; i++){
 					$('#messages').append('<li>'+data.allmessages[i].name+': '+data.allmessages[i].message+'!</li>')
 				}
 			})
+			//when a user joins, all other users are notified who has joined.
 			socket.on('to_other_users', function(data){
 				console.log(data.joiner.value)
-				$('#messages').append('<li>'+data.joiner+' has entered the arena!</li>')
+				$('#messages').append('<li>'+data.joiner+' has entered the room!</li>')
 			})
+			//this is how a user posts a comment
 			$('#textinput').submit(function(event){
+				//this stops reloading the page
 				event.preventDefault();
 				var message = {
 					mtext: this.input.value,
 					name: name,
 				}
+				//this empties the text box so user doesn't have to manually delete the contents
 				this.reset();
+				//send the message to the server
 				socket.emit('sending_message', {message:message})
-				return false;
 			})
+			//when server sends new message to all users
 			socket.on('update_messages', function(data){
+				//display said message
 				$('#messages').append('<li>'+data.message.name+': '+data.message.message+'</li>')
 			})
-			socket.on('disconnect', function(data){
+			//whenever a user disconnects
+			socket.on('disconnect_msg', function(data){
+				//note that in console and let all remaining users know the name of the user who left
 				console.log(data.disco_message)
-				$('#messages').append('<li> User '+data.disco_message+' disconnected.</li>')
+				$('#messages').append('<li> '+data.disco_message+' left the room.</li>')
 			})
 		})
 	</script>
 </head>
 	<body>
-		<ul id="messages"></ul>
-		<form id="textinput" action="">
-			<input id="input" autocomplete="off"/>
-			<button>Send</button>
-		</form>
+		<div class="container" >
+			<ul id="messages"></ul>
+			<form id="textinput" action="">
+				<input id="input" autocomplete="off"/>
+				<button>Send</button>
+			</form>
+		</div>
 	</body>
 </html>
