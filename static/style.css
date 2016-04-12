@@ -2,6 +2,7 @@
 	margin: 0;
 	padding: 0;
 	box-sizing: border-box;
+	font-family: helvetica;
 }
 body {
 	font: 13px Helvetica;
@@ -42,4 +43,23 @@ form button {
 }
 #container {
 	visibility: hidden;
+}
+.user{
+	display: inline-block;
+	background: -webkit-radial-gradient(center, ellipse cover, #a90329 0%,#8f0222 44%,#6d0019 100%);
+	text-align: center;
+	vertical-align: middle;
+	color: white;
+	height: 100px;
+	width: 100px;
+	border-radius: 50%;
+	padding: 5px;
+}
+.user p {
+	margin-top: 40%;
+}
+.users {
+	position: sticky;
+	top: 0;
+	width: 100%;
 }

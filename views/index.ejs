@@ -14,8 +14,15 @@
 			var name = prompt('What is your name?');
 			//if they don't provide one, reprompt
 			while (name.length < 2) {
-				if (!name){}
-				var name = prompt('You must enter a name.');
+				if (!name){
+					var name = prompt('You must enter a name.');
+				}
+				else {
+					var name = prompt('Your name must be at least 2 characters long.')
+				}
+			}
+			while (name.length > 15) {
+				var name = prompt('Your name must be between 2 and 16 characters in length.')
 			}
 			if (name.length > 1) {
 				$('#container').css('visibility', 'visible');
@@ -26,14 +33,22 @@
 			//when server pings back to user who has just joined, load and display all messages posted to date
 			socket.on('to_joined_user', function(data){
 				$('#messages').append('<h2>Welcome, '+data.users.name+'!</h2>')
+				//credit for this idea goes to Anya
+				for (var i = 0; i < data.allusers.length; i++){
+					$('.users').append('<div class="user '+data.allusers[i].name+'"><p>'+data.allusers[i].name+'</p></div>')
+				}
+
 				for (var i = 0; i < data.allmessages.length; i++){
 					$('#messages').append('<li>'+data.allmessages[i].name+': '+data.allmessages[i].message+'!</li>')
 				}
 			})
 			//when a user joins, all other users are notified who has joined.
 			socket.on('to_other_users', function(data){
-				console.log(data.joiner.value)
+				console.log(data.joiner)
 				$('#messages').append('<li>'+data.joiner+' has entered the room!</li>')
+
+				$('.users').append('<div class="user '+data.joiner+'"><p>'+data.joiner+'</p></div>')
+
 			})
 			//this is how a user posts a comment
 			$('#textinput').submit(function(event){
@@ -58,12 +73,15 @@
 				//note that in console and let all remaining users know the name of the user who left
 				console.log(data.disco_message)
 				$('#messages').append('<li> '+data.disco_message+' left the room.</li>')
+				$("div."+data.disco_message+"").remove()
 			})
 		})
 	</script>
 </head>
 	<body>
 		<div class="container" >
+			<div class="users">
+			</div>
 			<ul id="messages"></ul>
 			<form id="textinput" action="">
 				<input id="input" autocomplete="off"/>
